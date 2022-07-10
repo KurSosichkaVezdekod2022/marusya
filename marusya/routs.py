@@ -1,10 +1,7 @@
-import json
 from flask import request, jsonify
 from . import app
-from .utils import cards
-from . import utils
-from random import choices, choice
-import pprint
+from .utils.Game import Board
+
 users = dict()
 
 
@@ -20,35 +17,28 @@ def index():
     },
         "session": req["session"],
         "version": req["version"]}
-    buttons = [{"title": "Ещё"}, {"title": "Хватит"}]
+    buttons = [{"title": "Налево"}, {"title": "Направо"}, {"title": "Вниз"}, {"title": "Вверх"}]
     user_id = req["session"]["application"]["application_id"]
     if req["session"]["new"]:
-        users[user_id] = sum(choices(list(cards.values()), k=2))
-        response["response"]["buttons"] = buttons
-    elif req["request"].get("command", False):
-        if req["request"]["command"] == "ещё":
-            card = choice(list(cards.keys()))
-            users[user_id] += cards[card]
-            response["response"]["text"] = f"Вам выпала карта {card}"
-            response["response"]["buttons"] = buttons
-        elif req["request"]["command"] == "on_interrupt":
-            ai_score = utils.funcs.get_ai_score()
-            user_score = users[user_id]
-            response["response"]["end_session"] = True
-            response["response"]["text"] = f"Счёт компьютера {ai_score}"
-            if ai_score > user_score:
-                response["response"]["text"] += "\nВы проиграли"
-            elif user_score > ai_score:
-                response["response"]["text"] += "\nВы выиграли"
-            else:
-                response["response"]["text"] += "\nНичья"
-            return jsonify(response)
-    else:
-        response["response"]["buttons"] = buttons
-        response["response"]["text"] = "Я вас не понимаю"
-    response['response']['text'] += f'\nВаш счёт {users[user_id]}'
+        users[user_id] = Board()
+        users[user_id].start()
+    elif req["request"]["command"] == "налево":
+        users[user_id].move('l')
+    elif req["request"]["command"] == "направо":
+        users[user_id].move('r')
+    elif req["request"]["command"] == "вниз":
+        users[user_id].move('d')
+    elif req["request"]["command"] == "вверх":
+        users[user_id].move('u')
 
-    pprint.pprint(response)
+    if users[user_id].game_running:
+        response["response"]["buttons"] = buttons
+        response["response"]["text"] = f"Ваш счёт: {users[user_id].score}\n\n{users[user_id].get_state()}"
+    else:
+        response["response"]["text"] = f"Игра окончена!\nВаш счёт: {users[user_id].score}"
+        response["response"]["end_session"] = True
+    print(len(response["response"]["text"]))
+
     return jsonify(response)
 
 
