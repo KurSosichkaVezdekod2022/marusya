@@ -2,7 +2,7 @@ from flask import request, jsonify
 from . import app
 from random import choice
 
-users = dict()
+users2 = dict()
 objects = {"Яблоко": True, "Груша": True, "Банан": True, "Шоколад": True,
            "Сыр косичка": True, "Малина": True, "Чай": True, "Мороженое": True,
            "Пельмени": True, "Арбуз": True, "Дыня": True, "Абрикос": True,
@@ -18,7 +18,7 @@ objects = {"Яблоко": True, "Груша": True, "Банан": True, "Шок
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global users
+    global users2
     req = request.json
     response = {"response": {
         "tts": "",
@@ -31,26 +31,26 @@ def index():
     buttons = [{"title": "Съедобное"}, {"title": "Несъедобное"}]
     user_id = req["session"]["application"]["application_id"]
     if req["session"]["new"]:
-        users[user_id] = {"score": 0}
-        users[user_id]["last_word"] = choice(list(objects.keys()))
+        users2[user_id] = {"score": 0}
+        users2[user_id]["last_word"] = choice(list(objects.keys()))
     elif req["request"]["command"] == "съедобное":
-        if objects[users[user_id]["last_word"]]:
+        if objects[users2[user_id]["last_word"]]:
             response["response"]["text"] = "Верно!\n"
-            users[user_id]["score"] += 1
+            users2[user_id]["score"] += 1
         else:
             response["response"]["text"] = "Неверно :(\n"
-            users[user_id]["score"] = 0
-        users[user_id]["last_word"] = choice(list(objects.keys()))
+            users2[user_id]["score"] = 0
+        users2[user_id]["last_word"] = choice(list(objects.keys()))
     elif req["request"]["command"] == "несъедобное":
-        if objects[users[user_id]["last_word"]]:
+        if objects[users2[user_id]["last_word"]]:
             response["response"]["text"] = "Неверно :(\n"
-            users[user_id]["score"] = 0
+            users2[user_id]["score"] = 0
         else:
             response["response"]["text"] = "Верно!\n"
-            users[user_id]["score"] += 1
-        users[user_id]["last_word"] = choice(list(objects.keys()))
-    response["response"]["text"] += f'Ваш счёт: {users[user_id]["score"]}\n' \
-                                   f'Следующее слово: {users[user_id]["last_word"]}'
+            users2[user_id]["score"] += 1
+        users2[user_id]["last_word"] = choice(list(objects.keys()))
+    response["response"]["text"] += f'Ваш счёт: {users2[user_id]["score"]}\n' \
+                                   f'Следующее слово: {users2[user_id]["last_word"]}'
     response["response"]["buttons"] = buttons
     return jsonify(response)
 
