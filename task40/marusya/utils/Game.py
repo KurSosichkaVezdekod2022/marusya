@@ -1,5 +1,6 @@
 from random import randint
 from collections import deque
+from itertools import islice
 from copy import deepcopy
 
 
@@ -78,8 +79,10 @@ class Board:
         return True
 
     def check_tail_collide(self, position):
-        if position in self.snake.snake_parts[1:]:
+        if position in list(islice(self.snake.snake_parts, 1, self.snake.length)):
             return False
+        print(position)
+        print(list(islice(self.snake.snake_parts, 1, self.snake.length)))
         return True
 
     def check_apple_collide(self, part):
