@@ -15,7 +15,7 @@ class Board:
     def set(self, vec: Vector2, value: int):
         self.array[vec.y][vec.x] = value
 
-    def move(self, direction: Vector2, start: list[Vector2]):
+    def move(self, direction: Vector2, start: list):
         for c in start:
             tmp = c
             while self.get(c) is not None:
